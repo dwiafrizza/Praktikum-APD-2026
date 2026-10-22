@@ -1,0 +1,266 @@
+import os
+
+akun = [["admin", "admin123", "admin"]]
+helm = []
+nomor_berikutnya = 1
+daftar_jenis = ("Full Face", "Half Face", "Open Face", "Modular")
+angka = "0123456789"
+
+while True:
+    os.system("cls")
+    print("\n=== SISTEM TITIP HELM ===")
+    print("1. Login")
+    print("2. Daftar akun")
+    print("3. Keluar")
+    pilihan_awal = input("Masukkan menu yang dipilih: ")
+
+    if pilihan_awal == "2":
+        os.system("cls")
+        print("\n=== DAFTAR AKUN ===")
+        username_baru = input("Masukkan username baru: ")
+        password_baru = input("Masukkan password baru: ")
+
+        sudah_ada = False
+        for data_akun in akun:
+            if data_akun[0] == username_baru:
+                sudah_ada = True
+
+        if username_baru == "" or password_baru == "":
+            print("Username dan password tidak boleh kosong.")
+        elif sudah_ada == True:
+            print("Username sudah digunakan. Silakan pakai username lain.")
+        else:
+            akun.append([username_baru, password_baru, "user"])
+            print("Akun berhasil ditambahkan. Silakan login.")
+        input("Tekan Enter untuk kembali...")
+
+    elif pilihan_awal == "1":
+        os.system("cls")
+        print("\n=== LOGIN ===")
+        username = input("Username: ")
+        password = input("Password: ")
+
+        login_berhasil = False
+        username_ditemukan = False
+        role = ""
+        for data_akun in akun:
+            if data_akun[0] == username:
+                username_ditemukan = True
+                if data_akun[1] == password:
+                    login_berhasil = True
+                    role = data_akun[2]
+                break
+
+        if login_berhasil == False:
+            if username_ditemukan == False:
+                print("Akun tidak ditemukan. Silakan daftar akun terlebih dahulu.")
+            else:
+                print("Password salah.")
+            input("Tekan Enter untuk kembali...")
+        else:
+            while True:
+                os.system("cls")
+                print("\n=== MENU PENITIPAN HELM ===")
+                print("Login sebagai:", username, "(" + role + ")")
+                print("1. Titip helm")
+                print("2. Lihat data helm")
+                print("3. Ubah data helm")
+
+                if role == "admin":
+                    print("4. Ubah status pengambilan")
+                    print("5. Hapus data helm")
+                    print("6. Logout")
+                    kode_logout = "6"
+                else:
+                    print("4. Logout")
+                    kode_logout = "4"
+
+                pilihan = input("Masukkan menu yang dipilih: ")
+
+                if pilihan == "1":
+                    os.system("cls")
+                    print("\n=== TITIP HELM ===")
+                    nama_pemilik = input("Masukkan nama pemilik helm: ")
+                    print("Pilih jenis helm:")
+
+                    no = 1
+                    for jenis in daftar_jenis:
+                        print(str(no) + ". " + jenis)
+                        no += 1
+
+                    pilih_jenis = input("Masukkan nomor jenis helm: ")
+                    waktu = input("Masukkan waktu penitipan (contoh 08.30): ")
+
+                    jenis_dipilih = ""
+                    no = 1
+                    for jenis in daftar_jenis:
+                        if pilih_jenis == str(no):
+                            jenis_dipilih = jenis
+                        no += 1
+
+                    waktu_valid = False
+                    if len(waktu) == 5 and waktu[2] == ".":
+                        if (waktu[0] in angka and waktu[1] in angka
+                                and waktu[3] in angka and waktu[4] in angka):
+                            if waktu[0:2] < "24" and waktu[3:5] < "60":
+                                waktu_valid = True
+
+                    if nama_pemilik == "" or waktu == "":
+                        print("Nama pemilik dan waktu penitipan tidak boleh kosong.")
+                    elif jenis_dipilih == "":
+                        print("Nomor jenis helm tidak tersedia.")
+                    elif waktu_valid == False:
+                        print("Format waktu tidak valid. Gunakan format 08.30.")
+                    else:
+                        helm.append([
+                            str(nomor_berikutnya), nama_pemilik, jenis_dipilih,
+                            waktu, "Dititipkan", username
+                        ])
+                        print("Data helm berhasil ditambahkan. Nomor penitipan:", nomor_berikutnya)
+                        nomor_berikutnya += 1
+                    input("Tekan Enter untuk kembali...")
+
+                elif pilihan == "2":
+                    os.system("cls")
+                    print("\n=== DATA HELM ===")
+                    ada_data = False
+
+                    for data_helm in helm:
+                        if role == "admin" or data_helm[5] == username:
+                            print("\nNomor   :", data_helm[0])
+                            print("Pemilik :", data_helm[1])
+                            print("Jenis   :", data_helm[2])
+                            print("Waktu   :", data_helm[3])
+                            print("Status  :", data_helm[4])
+                            ada_data = True
+
+                    if ada_data == False:
+                        print("Belum ada data helm.")
+                    input("Tekan Enter untuk kembali...")
+
+                elif pilihan == "3":
+                    os.system("cls")
+                    print("\n=== UBAH DATA HELM ===")
+                    nomor_cari = input("Masukkan nomor penitipan: ")
+                    ketemu = False
+                    data_ketemu = []
+
+                    for data_helm in helm:
+                        if (data_helm[0] == nomor_cari
+                                and (role == "admin" or data_helm[5] == username)):
+                            ketemu = True
+                            data_ketemu = data_helm
+                            break
+
+                    if ketemu == False:
+                        print("Data helm tidak ditemukan.")
+                    elif data_ketemu[4] == "Sudah Diambil":
+                        print("Data helm yang sudah diambil tidak dapat diubah.")
+                    else:
+                        print("Nama pemilik saat ini:", data_ketemu[1])
+                        print("Jenis helm saat ini  :", data_ketemu[2])
+                        nama_baru = input("Masukkan nama pemilik baru (kosongkan jika tetap): ")
+                        print("Pilih jenis helm baru:")
+
+                        no = 1
+                        for jenis in daftar_jenis:
+                            print(str(no) + ". " + jenis)
+                            no += 1
+
+                        jenis_baru = input("Masukkan nomor jenis baru (kosongkan jika tetap): ")
+                        jenis_dipilih = ""
+                        no = 1
+
+                        for jenis in daftar_jenis:
+                            if jenis_baru == str(no):
+                                jenis_dipilih = jenis
+                            no += 1
+
+                        if jenis_baru != "" and jenis_dipilih == "":
+                            print("Nomor jenis helm tidak tersedia.")
+                        else:
+                            if nama_baru != "":
+                                data_ketemu[1] = nama_baru
+                            if jenis_dipilih != "":
+                                data_ketemu[2] = jenis_dipilih
+                            print("Data helm berhasil diubah.")
+                    input("Tekan Enter untuk kembali...")
+
+                elif pilihan == "4" and role == "admin":
+                    os.system("cls")
+                    print("\n=== UBAH STATUS PENGAMBILAN ===")
+                    nomor_cari = input("Masukkan nomor penitipan: ")
+                    ketemu = False
+                    data_ketemu = []
+
+                    for data_helm in helm:
+                        if data_helm[0] == nomor_cari:
+                            ketemu = True
+                            data_ketemu = data_helm
+                            break
+
+                    if ketemu == False:
+                        print("Nomor penitipan tidak ditemukan.")
+                    else:
+                        print("Status sekarang:", data_ketemu[4])
+                        print("1. Dititipkan")
+                        print("2. Sudah diambil")
+                        pilih_status = input("Masukkan status baru: ")
+
+                        if pilih_status == "1":
+                            data_ketemu[4] = "Dititipkan"
+                            print("Status berhasil diubah.")
+                        elif pilih_status == "2":
+                            data_ketemu[4] = "Sudah Diambil"
+                            print("Status berhasil diubah.")
+                        else:
+                            print("Pilihan status tidak valid.")
+                    input("Tekan Enter untuk kembali...")
+
+                elif pilihan == "5" and role == "admin":
+                    os.system("cls")
+                    print("\n=== HAPUS DATA HELM ===")
+                    nomor_cari = input("Masukkan nomor penitipan: ")
+                    ketemu = False
+                    data_ketemu = []
+
+                    for data_helm in helm:
+                        if data_helm[0] == nomor_cari:
+                            ketemu = True
+                            data_ketemu = data_helm
+                            break
+
+                    if ketemu == False:
+                        print("Nomor penitipan tidak ditemukan.")
+                    else:
+                        konfirmasi = input(
+                            "Hapus data helm milik " + data_ketemu[1] + "? (y/n): "
+                        )
+
+                        if konfirmasi == "y" or konfirmasi == "Y":
+                            helm.remove(data_ketemu)
+                            print("Data helm berhasil dihapus.")
+                        elif konfirmasi == "n" or konfirmasi == "N":
+                            print("Data helm tidak jadi dihapus.")
+                        else:
+                            print("Jawab y atau n. Data helm tidak jadi dihapus.")
+                    input("Tekan Enter untuk kembali...")
+
+                elif pilihan == kode_logout:
+                    print("Logout berhasil.")
+                    break
+
+                else:
+                    print("Menu tidak valid.")
+                    input("Tekan Enter untuk kembali...")
+
+    elif pilihan_awal == "3":
+        print("Program selesai. Terima kasih sudah menggunakan Sistem Titip Helm.")
+        break
+
+    else:
+        print("Menu tidak valid.")
+        input("Tekan Enter untuk kembali...")
+
+
+        
